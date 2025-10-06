@@ -3,5 +3,10 @@
         "productId": "bef3",
         "vendorId": "0451",
         "name": "Texas Instruments SensorTag"
+    },
+    {
+        "productId": "2e8a",
+        "vendorId": "000a",
+        "name": "Raspberry Pi Pico"
     }
 ]
