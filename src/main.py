@@ -3,9 +3,12 @@ import time
 import serial
 import threading
 import queue
+import colorama
 
 import morse
 import device_manager
+
+colorama.init()
 
 user_input = queue.Queue()
 def get_user_input():

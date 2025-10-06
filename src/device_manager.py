@@ -1,6 +1,9 @@
 import json
 import time
 import serial.tools.list_ports
+import colorama
+
+colorama.init()
 
 def load_allowed_devices():
     try:
@@ -14,7 +17,7 @@ def load_allowed_devices():
         return None
 
 def find_connected_device(allowed_devices):
-    return '/app/ttyV1'
+    #return '/app/ttyV1'
     dot_count = 1
     while True:
         time.sleep(0.2)
@@ -23,7 +26,9 @@ def find_connected_device(allowed_devices):
         dot_count = (dot_count + 1) % 4
         for candidate in allowed_devices:
             for port in serial.tools.list_ports.comports():
+                print(port.info)
                 if port.vid is not None and port.pid is not None:
+                    print(f"port.vid={port.vid} port.pid={port.pid}")
                     if port.vid == candidate['vendorId'] and port.pid == candidate['productId']:
                         print('Found device: ', candidate['name'])
                         return port.device
