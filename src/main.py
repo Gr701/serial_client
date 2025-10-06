@@ -85,7 +85,8 @@ def main():
         get_data_thread.join()
         input_thread.join(timeout=1)
         send_data_thread.join(timeout=1)
-
+        
+        uart.close()
         restart_event.clear()
 
 main()
