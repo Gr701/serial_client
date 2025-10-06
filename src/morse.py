@@ -1,3 +1,4 @@
+"""Morse module to handle encoding and decoding"""
 encode_table = {
     'a': '.-',
     'b': '-...',
@@ -28,15 +29,17 @@ encode_table = {
     ' ': ' ',
     '': ''
 }
-decode_table = {v: k for k, v in encode_table.items()}
+decode_table = {v: k for k, v in encode_table.items()} #reverse of encode table
 
 def encode(s):
+    """encode string by character, replace unknown charachters with ?"""
     return " ".join(encode_table.get(ch.lower(), '?') for ch in s)
 
 def decode(s):
-    words = s.strip().split('  ')
+    """split string into words, words into character, decode characters, replace unknown with ?"""
+    words = s.strip().split('  ') #2 spaces between words
     decoded = ''
     for w in words:
-        symbols = w.split(' ')
+        symbols = w.split(' ') #1 space between charachters
         decoded += "".join(decode_table.get(x, '?') for x in symbols) + ' '
     return decoded
