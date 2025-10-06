@@ -26,7 +26,6 @@ def find_connected_device(allowed_devices):
         dot_count = (dot_count + 1) % 4
         for candidate in allowed_devices:
             for port in serial.tools.list_ports.comports():
-                print(port.info)
                 if port.vid is not None and port.pid is not None:
                     print(f"port.vid={port.vid} port.pid={port.pid}")
                     if port.vid == candidate['vendorId'] and port.pid == candidate['productId']:
