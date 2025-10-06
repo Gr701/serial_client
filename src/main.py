@@ -29,15 +29,18 @@ def get_user_input():
 def send_data(uart):
     """Get data from the user_input queue. Encode the data to morse and send by one character over uart."""
     while not restart_event.is_set():
-        time.sleep(1)
-        if not user_input.empty():
-            morse_string = morse.encode(user_input.get())
-            for c in morse_string:
-                if c == ' ': #don't send spaces
-                    time.sleep(1)
-                    continue
-                uart.write(f"{c}\r\n".encode('utf-8'))
-                time.sleep(0.5)
+        try:
+            time.sleep(1)
+            if not user_input.empty():
+                morse_string = morse.encode(user_input.get())
+                for c in morse_string:
+                    if c == ' ': #don't send spaces
+                        time.sleep(1)
+                        continue
+                    uart.write(f"{c}\r\n".encode('utf-8'))
+                    time.sleep(0.5)
+        except serial.SerialException:
+            restart_event.set() #if device is disconnected signal threads to stop 
 
 def get_data(uart):
     """Get the data from uart. Print to the console. If 3 spaces are met decode the message and print it to console."""
