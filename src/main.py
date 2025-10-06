@@ -89,6 +89,7 @@ def main():
         input_thread.join(timeout=1)
         send_data_thread.join(timeout=1)
         
+        print('\033[2J\033[H', end='') #clear the terminal and move cursor to upper left corner
         uart.close()
         restart_event.clear()
 
