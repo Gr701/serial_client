@@ -1,10 +1,12 @@
 """2-way communication client for the final project of Computer Systems-course in University of Oulu using UART and Morse code."""
 import os
+import sys
 import time
 import serial
 import threading
 import queue
 import colorama
+import re
 
 import morse
 import device_manager
@@ -43,19 +45,19 @@ def send_data(uart):
             restart_event.set() #if device is disconnected signal threads to stop 
 
 def get_data(uart):
-    """Get the data from uart. Print to the console. If 3 spaces are met decode the message and print it to console."""
-    incoming_message = ''
+    """Get the data from uart. Print to the console. Accumulate data in the message variable, removing debug parts (marked with _ and \0). If 3 spaces are met decode the message and print it to console."""
+    message = ''
     while not restart_event.is_set():
         time.sleep(0.1)
         try:
-            incoming_char = uart.read(50).decode('utf-8', errors='ignore')
-            if incoming_char:
-                incoming_char = incoming_char.strip('\r\n\0')
-                print('\r\033[K' + incoming_char + '\n>', end='') #clear current line before printing
-                incoming_message += incoming_char
-                if '   ' in incoming_message: #3 spaces
-                    print('\r' + morse.decode(incoming_message) + '\n>', end='')
-                    incoming_message = ''
+            incoming = uart.read(100).decode('utf-8', errors='ignore')
+            if incoming:
+                print('\r\033[K', incoming, '\n>', end='') #clear current line before printing
+                message += incoming
+                message = "".join(re.split(r'_.*\0', message)) #remove debug parts (between _ and \0)
+                if '   ' in message: #3 spaces
+                    print('\r\033[K' + morse.decode(message) + '\n>', end='')
+                    message = ''
         except serial.SerialException:
             restart_event.set() #if device is disconnected signal threads to stop 
 

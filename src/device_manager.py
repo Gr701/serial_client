@@ -20,6 +20,7 @@ def load_allowed_devices():
 
 def find_connected_device(allowed_devices):
     """Go through connected USB devices, look for one matching the config, return its address (e.g. /dev/ttyACM0)"""
+    return "/app/ttyV1"
     dot_count = 1
     while True:
         time.sleep(0.2)
