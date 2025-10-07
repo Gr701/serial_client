@@ -31,3 +31,7 @@ It is possible to use this program with multiple target boards (but not simultan
 The vendor and device id's for these boards are specified in `config.json`-file located in the root directory of this project. New boards can be added by following the existing format of the file. Currently, there are two supported boards, the Texas Instruments SensorTag and Raspberry Pi Pico WH included in the configuration.
 
 **Note** Be careful when adding new board configurations, as the program will refuse to run if the JSON formatting is not correct, or there are attributes missing in the configuration file.
+
+##Development
+
+To test the program during development serial channel can be opened for example with the "socat" tool. More detailed description in the `src/test_helper.py`.
