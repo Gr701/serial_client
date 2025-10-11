@@ -39,7 +39,7 @@ def send_data(uart):
                     if c == ' ': #don't send spaces
                         time.sleep(1)
                         continue
-                    uart.write(f"{c}\r\n".encode('utf-8'))
+                    uart.write(f"{c}".encode('utf-8'))
                     time.sleep(0.5)
         except serial.SerialException:
             restart_event.set() #if device is disconnected signal threads to stop 
