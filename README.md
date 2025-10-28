@@ -20,15 +20,15 @@ To get up and running as fast as possible, here are quick instructions for using
 
 The program supports morse to lower case english alphabet encoding/decoding.
 
-The characters encoded with morse should be separated by one space. The words are separated by two and the end of the message is three spaces. Once the program detects three spaces it proceeds to decode the message and print it to the console. If there are invalid characters they are replaced with `?` in the decoded string.
+The characters encoded with morse should be separated by one space. The words are separated by two and the end of the message is two spaces and line feed (\n). Once the program detects the two spaces + line feed,  it proceeds to decode the message and print it to the console. If there are invalid characters they are replaced with `?` in the decoded string.
 
-Everything that is placed between `_` and `\0` characters is considered a debug message and excluded from the decoding.
+Everything that is placed between `__` and `__` characters is considered a debug message and excluded from the decoding.
 
 ## Boards
 
 It is possible to use this program with multiple target boards (but not simultaneously!) running the final project program, or a program with a similar communication protocol.
 
-The vendor and device id's for these boards are specified in `config.json`-file located in the root directory of this project. New boards can be added by following the existing format of the file. Currently, there are two supported boards, the Texas Instruments SensorTag and Raspberry Pi Pico WH included in the configuration.
+The vendor and device id's for these boards are specified in `config.json`-file located in the root directory of this project. New boards can be added by following the existing format of the file. Currently, there are three supported boards, the Texas Instruments SensorTag, the Raspberry Pi Pico WH and the University of Oulu TKJHAT (when using the usb-debug library) included in the configuration.
 
 **Note** Be careful when adding new board configurations, as the program will refuse to run if the JSON formatting is not correct, or there are attributes missing in the configuration file.
 
