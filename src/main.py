@@ -34,16 +34,19 @@ def send_data(usb):
     """Get data from the user_input queue. Encode the data to morse and send by one character over usb."""
     while not restart_event.is_set():
         try:
-            time.sleep(1)
+            time.sleep(0.3)# Wait 300ms
             if not user_input.empty():
                 morse_string = morse.encode(user_input.get())
                 for c in morse_string:
-                    if c == ' ': #don't send spaces
-                        time.sleep(1)
-                        continue
+                    # Send spaces also. No time. 
+                    #if c == ' ': #don't send spaces
+                    #    time.sleep(1)
+                    #    continue
                     usb.write(f"{c}".encode('utf-8'))
-                    time.sleep(0.5)
+                    time.sleep(0.005) # wait 5ms
+                usb.write(b"  \n") #Add the end of line
         except serial.SerialException:
+            print("Error sending data\n")
             restart_event.set() #if device is disconnected signal threads to stop 
 
 def get_data(usb):
