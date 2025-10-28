@@ -5,18 +5,36 @@ import serial.tools.list_ports
 import colorama
 
 colorama.init() #allows the use of ANSI escape codes in cmd on Windows (\033[K, \033[F)
+_DEFAULT_INPUT_BUFFER_SIZE = 150
 
-def load_allowed_devices():
-    """Load devices from config.json and check for the required fields"""
+def parse_config():
     try:
         with open('./config.json', 'r') as file: 
-            data = json.load(file)
-            for device in data:
-                if 'productId' not in device or 'vendorId' not in device or 'name' not in device:
-                    return None
-            return data
+            return json.load(file)
+        if not isinstance(data, dict):
+            return None
     except (FileNotFoundError, json.JSONDecodeError):
         return None
+
+
+def load_input_buffer(data):
+    """If exists extract the value of input_buffer"""
+    size = data.get("inputBufferSize")
+    if not isinstance(size, int) or size <= 0:
+        size = _DEFAULT_INPUT_BUFFER_SIZE
+    return size
+
+
+def load_allowed_devices(data):
+    """Load devices from the parsed config.json that is provided as parameter and check for the required fields"""
+    devices = data.get("devices")
+    if not isinstance(devices, list) or not devices:
+        return None
+    for device in devices:
+        if 'productId' not in device or 'vendorId' not in device or 'name' not in device:
+            return None
+    return devices
+
 
 def find_connected_device(allowed_devices):
     """Go through connected USB devices, look for one matching the config, return its address (e.g. /dev/ttyACM0)"""

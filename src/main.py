@@ -1,4 +1,4 @@
-"""2-way communication client for the final project of Computer Systems-course in University of Oulu using UART and Morse code."""
+"""2-way communication client for the final project of Computer Systems-course in University of Oulu using usb and Morse code."""
 import os
 import sys
 import time
@@ -14,6 +14,8 @@ import device_manager
 colorama.init() #allows the use of ANSI escape codes in cmd on Windows (\033[K, \033[F)
 
 user_input = queue.Queue()
+input_buffer_size = None
+
 def get_user_input():
     """Get the input from the console and add it to the user_input queue. Special commands are .clear and .exit"""
     while not restart_event.is_set():
@@ -28,8 +30,8 @@ def get_user_input():
         user_input.put(inp)
         print('\033[F\033[K', end='') #clear line to hide the user input after pressing enter
 
-def send_data(uart):
-    """Get data from the user_input queue. Encode the data to morse and send by one character over uart."""
+def send_data(usb):
+    """Get data from the user_input queue. Encode the data to morse and send by one character over usb."""
     while not restart_event.is_set():
         try:
             time.sleep(1)
@@ -39,24 +41,25 @@ def send_data(uart):
                     if c == ' ': #don't send spaces
                         time.sleep(1)
                         continue
-                    uart.write(f"{c}".encode('utf-8'))
+                    usb.write(f"{c}".encode('utf-8'))
                     time.sleep(0.5)
         except serial.SerialException:
             restart_event.set() #if device is disconnected signal threads to stop 
 
-def get_data(uart):
-    """Get the data from uart. Print to the console. Accumulate data in the message variable, removing debug parts (marked with _ and \0). If 3 spaces are met decode the message and print it to console."""
+def get_data(usb):
+    """Get the data from usb. Print to the console. Accumulate data in the message variable, removing debug parts (marked with _ and \0). If 3 spaces are met decode the message and print it to console."""
     message = ''
     while not restart_event.is_set():
         time.sleep(0.1)
         try:
-            incoming = uart.read(100).decode('utf-8', errors='ignore')
+            incoming = usb.read(input_buffer_size).decode('utf-8', errors='ignore')
             if incoming:
-                print('\r\033[K', incoming, '\n>', end='') #clear current line before printing
+                incoming = incoming.replace('\r\n', '\n')  # normalize line endings
+                print(f'\r\033[K» {incoming if incoming.endswith("\n") else incoming + "\n"}>', end='') # print raw text clear current line before printing
                 message += incoming
-                message = "".join(re.split(r'_.*\0', message)) #remove debug parts (between _ and \0)
-                if '   ' in message: #3 spaces
-                    print('\r\033[K' + morse.decode(message) + '\n>', end='')
+                message = re.sub(r'__.*?__', '', message) # Remove debug message. Debug message is anything between __ ___
+                if '  \n' in message: #2 spaces and \n
+                    print('\r\033[K', '\U0001F524', morse.decode(message), '\n\n>', end='')  # clear current line before printing decoded text
                     message = ''
         except serial.SerialException:
             restart_event.set() #if device is disconnected signal threads to stop 
@@ -68,20 +71,26 @@ def main():
     """Load the config. Enter main loop, where the connected device is found and communication threads are started. If device is disconnected the restart_event is set. Threads are stopped and the next loop iteration begins with looking for connected device."""
     global allowed_devices
     print('Loading config file')
-    allowed_devices = device_manager.load_allowed_devices()
+    data = device_manager.parse_config()
+    if not data: 
+        print ('config.json could not be found or is not a valid json file')
+        return
+    allowed_devices = device_manager.load_allowed_devices(data)
     if allowed_devices is None:
-        print('Invalid config.json file')
+        print('Invalid config.json file. Devices could not be loaded')
         return
     print('Config loaded with ', len(allowed_devices), ' devices')
+    global input_buffer_size
+    input_buffer_size = device_manager.load_input_buffer(data)
 
     while not exit_event.is_set():
         device = device_manager.find_connected_device(allowed_devices)
-        uart = serial.Serial(device, 9600, timeout=0)
+        usb = serial.Serial(device, 9600, timeout=0)
         print('Connected\n')
 
         input_thread = threading.Thread(target=get_user_input)
-        send_data_thread = threading.Thread(target=send_data, args=(uart,))
-        get_data_thread = threading.Thread(target=get_data, args=(uart,))
+        send_data_thread = threading.Thread(target=send_data, args=(usb,))
+        get_data_thread = threading.Thread(target=get_data, args=(usb,))
 
         input_thread.start()
         send_data_thread.start()
@@ -92,7 +101,8 @@ def main():
         send_data_thread.join(timeout=1)
         
         print('\033[2J\033[H', end='') #clear the terminal and move cursor to upper left corner
-        uart.close()
+        usb.close()
         restart_event.clear()
 
-main()
+if __name__ == "__main__":
+    main()
