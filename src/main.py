@@ -62,7 +62,7 @@ def get_data(usb):
                 message += incoming
                 message = re.sub(r'__.*?__', '', message) # Remove debug message. Debug message is anything between __ ___
                 if '  \n' in message: #2 spaces and \n
-                    print('\r\033[K', '\U0001F524', morse.decode(message), '\n\n>', end='')  # clear current line before printing decoded text
+                    print('\r\033[K', '\u21C4', morse.decode(message), '\n\n>', end='')  # clear current line before printing decoded text
                     message = ''
         except serial.SerialException:
             restart_event.set() #if device is disconnected signal threads to stop 
