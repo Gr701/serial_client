@@ -32,6 +32,6 @@ The vendor and device id's for these boards are specified in `config.json`-file 
 
 **Note** Be careful when adding new board configurations, as the program will refuse to run if the JSON formatting is not correct, or there are attributes missing in the configuration file.
 
-##Development
+## Development
 
 To test the program during development serial channel can be opened for example with the "socat" tool. More detailed description in the `src/test_helper.py`.
