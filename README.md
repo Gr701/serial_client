@@ -34,4 +34,4 @@ The vendor and device id's for these boards are specified in `config.json`-file 
 
 ## Development
 
-To test the program during development serial channel can be opened for example with the "socat" tool. More detailed description in the `src/test_helper.py`.
+To test the program during the development the serial channel can be opened, for example, with the "socat" tool. More detailed description in the `src/test_helper.py`.
